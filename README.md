@@ -39,28 +39,33 @@
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/beratbesli/weatherminus.git
+1. git clone https://github.com/beratbesli/weatherminus.git
 cd weatherminus
+
 2. Install Dependencies
 pip install -r requirements.txt
+
 3. Get an API Key
 Go to: https://openweathermap.org/api
 Sign up and get your free API key
-```
 Then open weatherminus.py and replace:
 API_KEY = "YOUR_API_KEY_HERE"
 with:
 API_KEY = "your_actual_api_key"
+
 4. Run the Application
 python weatherminus.py
+```
 
 ⚙️ Configuration
-
 By default, the application uses coordinates for Edirne, Turkey:
 current_lat, current_lon = 41.67, 26.56
+
 You can change these values to any location:
+
 current_lat = YOUR_LATITUDE
 current_lon = YOUR_LONGITUDE
+
 📌 Example Output
 --- WEATHERMINUS ---
 Currently at your exact opposite point on Earth (the Middle of the Ocean):
@@ -74,15 +79,26 @@ If no city is found, the location will be shown as "the Middle of the Ocean" �
 Make sure your API key is valid, otherwise the app won’t return data.
 
 🛠️ Built With
+
 Python 🐍
+
 requests library
+
 OpenWeatherMap API
 
+
 💡 Future Improvements
+
 🌍 Auto-detect user location
+
 🖥️ GUI version (Tkinter / PyQt)
+
 📱 Mobile-friendly version
+
 🌐 Multiple language support
+
+
+
 📄 License
 
 This project is open-source and available under the MIT License.
