@@ -1,5 +1,3 @@
-"""Weatherminus: Calculate Earth antipode and compare weather data."""
-
 from __future__ import annotations
 
 import argparse
@@ -11,24 +9,13 @@ from dotenv import load_dotenv
 
 WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
 GEOCODING_URL = "https://api.openweathermap.org/geo/1.0/direct"
+MARINE_URL = "https://marine-api.open-meteo.com/v1/marine"
 IP_GEOLOCATION_URL = "https://ipapi.co/json/"
 DEFAULT_LATITUDE = 41.67
 DEFAULT_LONGITUDE = 26.56
 
 
 def get_antipode(latitude: float, longitude: float) -> tuple[float, float]:
-    """Calculate the exact opposite geographical point (antipode) on Earth.
-
-    Args:
-        latitude: Latitude in degrees (-90 to 90).
-        longitude: Longitude in degrees (-180 to 180).
-
-    Returns:
-        A tuple of (antipode_latitude, antipode_longitude) rounded to 4 decimals.
-
-    Raises:
-        ValueError: If latitude or longitude is outside valid geographical boundaries.
-    """
     if not -90 <= latitude <= 90:
         raise ValueError("Latitude must be between -90 and 90.")
     if not -180 <= longitude <= 180:
@@ -46,14 +33,8 @@ def get_antipode(latitude: float, longitude: float) -> tuple[float, float]:
 
 
 def load_configuration() -> tuple[str | None, float, float]:
-    """Load API key and default coordinates from environment (.env).
-
-    Returns:
-        Tuple of (api_key, latitude, longitude).
-    """
     load_dotenv()
     api_key = os.getenv("OPENWEATHER_API_KEY", "").strip()
-
     lat_str = os.getenv("WEATHERMINUS_LAT", "").strip()
     lon_str = os.getenv("WEATHERMINUS_LON", "").strip()
 
@@ -71,19 +52,6 @@ def load_configuration() -> tuple[str | None, float, float]:
 
 
 def geocode_city(api_key: str, city_name: str) -> tuple[float, float, str]:
-    """Resolve city name into geographical coordinates using OpenWeather Geocoding API.
-
-    Args:
-        api_key: OpenWeather API key.
-        city_name: Name of the city to search.
-
-    Returns:
-        Tuple of (latitude, longitude, formatted_location_name).
-
-    Raises:
-        ValueError: If city is not found or response is invalid.
-        requests.RequestException: On network/API errors.
-    """
     response = requests.get(
         GEOCODING_URL,
         params={"q": city_name, "limit": 1, "appid": api_key},
@@ -96,8 +64,8 @@ def geocode_city(api_key: str, city_name: str) -> tuple[float, float, str]:
         raise ValueError(f"City '{city_name}' could not be found.")
 
     city_info = data[0]
-    lat = city_info.get("lat")
-    lon = city_info.get("lon")
+    lat = float(city_info["lat"])
+    lon = float(city_info["lon"])
     name = city_info.get("name", city_name)
     country = city_info.get("country", "")
     state = city_info.get("state", "")
@@ -105,18 +73,10 @@ def geocode_city(api_key: str, city_name: str) -> tuple[float, float, str]:
     location_parts = [part for part in [name, state, country] if part]
     full_location = ", ".join(location_parts)
 
-    return float(lat), float(lon), full_location
+    return lat, lon, full_location
 
 
 def get_location_from_ip() -> tuple[float, float, str]:
-    """Auto-detect current location using public IP geolocation.
-
-    Returns:
-        Tuple of (latitude, longitude, location_name).
-
-    Raises:
-        RuntimeError: If IP geolocation fails.
-    """
     try:
         response = requests.get(
             IP_GEOLOCATION_URL,
@@ -138,7 +98,6 @@ def get_location_from_ip() -> tuple[float, float, str]:
 
 
 def handle_http_errors(response: requests.Response) -> None:
-    """Check HTTP response and raise user-friendly exceptions for common error codes."""
     if response.status_code == 401:
         raise ValueError("Invalid OpenWeather API Key (401 Unauthorized). Please check your key in .env.")
     if response.status_code == 404:
@@ -155,18 +114,6 @@ def get_weather(
     units: str = "metric",
     lang: str = "en",
 ) -> dict[str, Any]:
-    """Fetch current weather data from OpenWeather API.
-
-    Args:
-        api_key: OpenWeather API key.
-        latitude: Latitude coordinate.
-        longitude: Longitude coordinate.
-        units: Temperature units ('metric' for Celsius, 'imperial' for Fahrenheit).
-        lang: Response language code (e.g. 'en', 'tr').
-
-    Returns:
-        JSON response as a dictionary.
-    """
     response = requests.get(
         WEATHER_URL,
         params={
@@ -182,8 +129,25 @@ def get_weather(
     return response.json()
 
 
+def get_marine_data(latitude: float, longitude: float) -> dict[str, Any] | None:
+    try:
+        response = requests.get(
+            MARINE_URL,
+            params={
+                "latitude": latitude,
+                "longitude": longitude,
+                "current": "wave_height,wave_direction,wave_period",
+            },
+            timeout=6,
+        )
+        if response.status_code == 200:
+            return response.json()
+    except Exception:
+        return None
+    return None
+
+
 def get_weather_emoji(icon_id: str, description: str) -> str:
-    """Return an appropriate weather emoji based on icon code or description."""
     desc = description.lower()
     if "thunderstorm" in desc or icon_id.startswith("11"):
         return "⛈️"
@@ -211,8 +175,8 @@ def format_weather_card(
     longitude: float,
     units: str = "metric",
     custom_location_name: str | None = None,
+    marine_data: dict[str, Any] | None = None,
 ) -> str:
-    """Format weather details into an ASCII display card."""
     if "main" not in weather or not weather.get("weather"):
         return f"[{title}]\nIncomplete weather data received."
 
@@ -247,14 +211,22 @@ def format_weather_card(
         f"│ Humidity:    {f'{humidity}%':<46} │",
         f"│ Wind Speed:  {f'{wind_speed} {speed_symbol}':<46} │",
         f"│ Pressure:    {f'{pressure} hPa':<46} │",
+    ]
+
+    if marine_data and "current" in marine_data:
+        curr = marine_data["current"]
+        wave_h = curr.get("wave_height", "N/A")
+        wave_p = curr.get("wave_period", "N/A")
+        lines.append(f"│ Marine Waves: {f'{wave_h}m (Period: {wave_p}s)':<45} │")
+
+    lines.extend([
         f"│ Map Link:    {maps_url:<46} │",
         f"└─────────────────────────────────────────────────────────────┘",
-    ]
+    ])
     return "\n".join(lines)
 
 
 def get_status_commentary(temp: float, description: str, is_antipode: bool = True) -> str:
-    """Generate a witty status commentary based on weather."""
     desc_lower = description.lower()
     prefix = "Antipode status: " if is_antipode else "Home status: "
 
@@ -274,7 +246,6 @@ def get_status_commentary(temp: float, description: str, is_antipode: bool = Tru
 
 
 def parse_arguments() -> argparse.Namespace:
-    """Configure and parse command line arguments."""
     parser = argparse.ArgumentParser(
         prog="weatherminus",
         description="Calculate Earth antipode and inspect opposite weather data.",
@@ -283,7 +254,7 @@ def parse_arguments() -> argparse.Namespace:
         "--city",
         "-c",
         type=str,
-        help="Search origin by city name (e.g. 'Tokyo', 'Istanbul', 'New York').",
+        help="Search origin by city name.",
     )
     parser.add_argument(
         "--lat",
@@ -299,38 +270,43 @@ def parse_arguments() -> argparse.Namespace:
         "--auto-ip",
         "-a",
         action="store_true",
-        help="Automatically detect your location based on public IP.",
+        help="Automatically detect location based on public IP.",
     )
     parser.add_argument(
         "--compare",
         action="store_true",
-        help="Show weather comparison between your origin location and the antipode.",
+        help="Show weather comparison between origin and antipode.",
+    )
+    parser.add_argument(
+        "--marine",
+        "-m",
+        action="store_true",
+        help="Include marine and ocean wave data.",
     )
     parser.add_argument(
         "--units",
         "-u",
         choices=["metric", "imperial"],
         default="metric",
-        help="Units for temperature ('metric' for Celsius, 'imperial' for Fahrenheit).",
+        help="Units ('metric' for Celsius, 'imperial' for Fahrenheit).",
     )
     parser.add_argument(
         "--lang",
         "-l",
         type=str,
         default="en",
-        help="Language code for weather description (e.g. 'en', 'tr', 'de', 'es').",
+        help="Language code (e.g. 'en', 'tr', 'de', 'es').",
     )
     parser.add_argument(
         "--api-key",
         "-k",
         type=str,
-        help="Provide OpenWeather API key directly instead of .env file.",
+        help="Provide OpenWeather API key directly.",
     )
     return parser.parse_args()
 
 
 def main() -> int:
-    """Main application execution pipeline."""
     args = parse_arguments()
 
     env_key, default_lat, default_lon = load_configuration()
@@ -365,7 +341,8 @@ def main() -> int:
         if args.compare:
             print("\nFetching weather for your origin location...")
             home_weather = get_weather(api_key, lat, lon, units=args.units, lang=args.lang)
-            print(format_weather_card(home_weather, "Origin Location", lat, lon, args.units, origin_name))
+            home_marine = get_marine_data(lat, lon) if args.marine else None
+            print(format_weather_card(home_weather, "Origin Location", lat, lon, args.units, origin_name, home_marine))
             home_temp = home_weather.get("main", {}).get("temp", 20)
             home_desc = home_weather.get("weather", [{}])[0].get("description", "")
             print(get_status_commentary(home_temp, home_desc, is_antipode=False))
@@ -373,7 +350,8 @@ def main() -> int:
 
         print("Fetching weather for the exact opposite point (Antipode)...")
         anti_weather = get_weather(api_key, anti_lat, anti_lon, units=args.units, lang=args.lang)
-        print(format_weather_card(anti_weather, "Exact Opposite Point (Antipode)", anti_lat, anti_lon, args.units))
+        anti_marine = get_marine_data(anti_lat, anti_lon) if args.marine else None
+        print(format_weather_card(anti_weather, "Exact Opposite Point (Antipode)", anti_lat, anti_lon, args.units, None, anti_marine))
         anti_temp = anti_weather.get("main", {}).get("temp", 20)
         anti_desc = anti_weather.get("weather", [{}])[0].get("description", "")
         print(get_status_commentary(anti_temp, anti_desc, is_antipode=True))
@@ -384,7 +362,7 @@ def main() -> int:
         print(f"\nConfiguration or validation error: {err}")
         return 1
     except requests.Timeout:
-        print("\nError: The network request timed out. Please check your internet connection.")
+        print("\nError: Network request timed out. Please check your internet connection.")
         return 1
     except requests.RequestException as err:
         print(f"\nWeather API request failed: {err}")
@@ -396,4 +374,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-
