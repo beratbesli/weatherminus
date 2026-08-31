@@ -2,18 +2,22 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Navigation, Loader2 } from 'lucide-react';
 import { searchCities, fetchAutoIpLocation } from '../../services/api';
 import { CitySearchResult } from '../../types';
+import { Language, translations } from '../../i18n/translations';
 
 interface SearchBarProps {
   onSelectLocation: (lat: number, lon: number, name: string) => void;
   isLoading: boolean;
+  lang: Language;
 }
 
-export const SearchBar: React.FC<SearchBarProps> = ({ onSelectLocation, isLoading }) => {
+export const SearchBar: React.FC<SearchBarProps> = ({ onSelectLocation, isLoading, lang }) => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<CitySearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const t = translations[lang];
 
   useEffect(() => {
     if (query.trim().length < 2) {
@@ -76,17 +80,17 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSelectLocation, isLoadin
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search any city or coordinates (e.g. Tokyo, Istanbul, New York)..."
+          placeholder={t.searchPlaceholder}
           className="flex-1 bg-transparent text-sm text-slate-100 placeholder-slate-400 outline-none px-2 py-1.5 font-medium"
         />
 
         <button
           onClick={handleAutoIp}
-          title="Auto-detect current location"
+          title={t.myLocation}
           className="px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-semibold flex items-center gap-1.5 border border-cyan-500/20 transition-all active:scale-95"
         >
           <Navigation className="w-3.5 h-3.5" />
-          <span>My Location</span>
+          <span>{t.myLocation}</span>
         </button>
       </div>
 

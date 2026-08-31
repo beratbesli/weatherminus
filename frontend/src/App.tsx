@@ -5,6 +5,7 @@ import { SearchBar } from './components/Dashboard/SearchBar';
 import { ComparisonPanel } from './components/Dashboard/ComparisonPanel';
 import { fetchTelemetry } from './services/api';
 import { FullTelemetryResponse } from './types';
+import { Language } from './i18n/translations';
 
 export const App: React.FC = () => {
   const [originLat, setOriginLat] = useState<number>(41.67);
@@ -14,15 +15,15 @@ export const App: React.FC = () => {
   const [antiLon, setAntiLon] = useState<number>(-153.44);
 
   const [units, setUnits] = useState<'metric' | 'imperial'>('metric');
-  const [lang, setLang] = useState<string>('en');
+  const [lang, setLang] = useState<Language>('tr');
   const [telemetry, setTelemetry] = useState<FullTelemetryResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isDrilling, setIsDrilling] = useState<boolean>(false);
 
-  const loadData = useCallback(async (lat: number, lon: number, name?: string) => {
+  const loadData = useCallback(async (lat: number, lon: number, name?: string, currentUnits = units, currentLang = lang) => {
     setIsLoading(true);
     try {
-      const data = await fetchTelemetry(lat, lon, name, units, lang);
+      const data = await fetchTelemetry(lat, lon, name, currentUnits, currentLang);
       setTelemetry(data);
       setOriginLat(data.origin.location.latitude);
       setOriginLon(data.origin.location.longitude);
@@ -40,14 +41,14 @@ export const App: React.FC = () => {
   }, [units, lang]);
 
   useEffect(() => {
-    loadData(originLat, originLon, originName);
-  }, [loadData]);
+    loadData(originLat, originLon, originName, units, lang);
+  }, [units, lang, loadData, originLat, originLon, originName]);
 
   const handleSelectLocation = (lat: number, lon: number, name: string) => {
     setOriginLat(lat);
     setOriginLon(lon);
     setOriginName(name);
-    loadData(lat, lon, name);
+    loadData(lat, lon, name, units, lang);
   };
 
   const handleToggleUnits = () => {
@@ -55,8 +56,12 @@ export const App: React.FC = () => {
     setUnits(nextUnits);
   };
 
+  const handleChangeLanguage = (newLang: Language) => {
+    setLang(newLang);
+  };
+
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-[#050814] select-none">
+    <div className="relative w-screen h-screen overflow-hidden bg-[#040814] select-none">
       <EarthGlobe
         originLat={originLat}
         originLon={originLon}
@@ -70,7 +75,7 @@ export const App: React.FC = () => {
         units={units}
         onToggleUnits={handleToggleUnits}
         lang={lang}
-        onChangeLang={setLang}
+        onChangeLang={handleChangeLanguage}
         onDrillClick={() => setIsDrilling(true)}
         isDrilling={isDrilling}
       />
@@ -79,12 +84,14 @@ export const App: React.FC = () => {
         <SearchBar
           onSelectLocation={handleSelectLocation}
           isLoading={isLoading}
+          lang={lang}
         />
       </div>
 
       <ComparisonPanel
         telemetry={telemetry}
         units={units}
+        lang={lang}
       />
     </div>
   );
