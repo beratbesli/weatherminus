@@ -71,14 +71,14 @@ docker-compose up --build
 ```bash
 python -m venv .venv
 # Windows: .venv\Scripts\activate | Linux/macOS: source .venv/bin/activate
-pip install -r backend/requirements.txt
+python -m pip install -e .
 uvicorn backend.app.main:app --reload --port 8000
 ```
 
 #### Frontend:
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
@@ -101,9 +101,19 @@ python weatherminus.py --auto-ip --compare --lang tr
 
 ## 🧪 Testing
 
-Run all unit and integration tests:
+Install development dependencies and run all unit and integration tests:
 ```bash
-pytest -v
+python -m pip install -e ".[dev]"
+python -m pytest -v
+```
+
+Validate and build the frontend with the checked-in lockfile:
+
+```bash
+cd frontend
+npm ci
+npm run typecheck
+npm run build
 ```
 
 ---
