@@ -138,4 +138,5 @@ class TestGeocodingAndAPI:
         assert "TEST LOCATION" in card
         assert "18.5°C" in card
         assert "Marine Waves: 2.4m (Period: 8.5s)" in card
-        assert "https://www.google.com/maps?q=-41.67,-153.44" in card
+        assert "Coordinates:" not in card
+        assert "Map Link:" not in card

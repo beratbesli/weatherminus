@@ -177,6 +177,12 @@ def format_weather_card(
     custom_location_name: str | None = None,
     marine_data: dict[str, Any] | None = None,
 ) -> str:
+    # This renderer writes to the terminal, which may be redirected to a
+    # shared log.  Keep precise coordinates out of the card so an accidental
+    # log capture cannot disclose a user's location.  The coordinate
+    # parameters remain part of the function signature for compatibility with
+    # existing callers; the web application exposes map links through its
+    # authenticated API/UI instead.
     if "main" not in weather or not weather.get("weather"):
         return f"[{title}]\nIncomplete weather data received."
 
@@ -198,14 +204,11 @@ def format_weather_card(
     if not resolved_name or resolved_name.strip() == "":
         resolved_name = "Middle of the Ocean / Remote Area"
 
-    maps_url = f"https://www.google.com/maps?q={latitude},{longitude}"
-
     lines = [
         f"┌─────────────────────────────────────────────────────────────┐",
         f"│ {title.upper():^59} │",
         f"├─────────────────────────────────────────────────────────────┤",
         f"│ Location:    {resolved_name:<46} │",
-        f"│ Coordinates: {f'{latitude:.4f}, {longitude:.4f}':<46} │",
         f"│ Condition:   {f'{emoji} {description}':<46} │",
         f"│ Temperature: {f'{temp}{unit_symbol} (Feels like {feels_like}{unit_symbol})':<46} │",
         f"│ Humidity:    {f'{humidity}%':<46} │",
@@ -220,7 +223,6 @@ def format_weather_card(
         lines.append(f"│ Marine Waves: {f'{wave_h}m (Period: {wave_p}s)':<45} │")
 
     lines.extend([
-        f"│ Map Link:    {maps_url:<46} │",
         f"└─────────────────────────────────────────────────────────────┘",
     ])
     return "\n".join(lines)
