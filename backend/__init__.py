@@ -1,0 +1,2 @@
+"""Weatherminus backend package."""
+
