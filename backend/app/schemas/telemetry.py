@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 
@@ -16,6 +16,7 @@ class LocationInfo(BaseModel):
     latitude: float
     longitude: float
     is_land: bool = True
+    classification_accuracy: Literal["approximate_bounds"] = "approximate_bounds"
 
 
 class WeatherData(BaseModel):

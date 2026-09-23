@@ -27,6 +27,7 @@ export const ComparisonPanel: React.FC<ComparisonPanelProps> = ({ telemetry, uni
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
             <Globe2 className="w-4 h-4 text-cyan-400" />
             <span>{t.antipodeSummary(antipode.location.latitude, antipode.location.longitude, antipode.location.is_land)}</span>
+            <span className="text-amber-300">{t.landSeaApproximate}</span>
           </div>
           <span className="text-[11px] font-mono text-slate-400">
             {t.distanceLabel}

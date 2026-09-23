@@ -7,6 +7,8 @@ export interface Translations {
   drillingButton: string;
   searchPlaceholder: string;
   myLocation: string;
+  locationUnavailable: string;
+  landSeaApproximate: string;
   distanceLabel: string;
   yourLocation: string;
   antipodeLocation: string;
@@ -46,6 +48,8 @@ export const translations: Record<Language, Translations> = {
     drillingButton: 'Drilling Earth Core...',
     searchPlaceholder: 'Search any city (e.g. Tokyo, Istanbul, New York, London)...',
     myLocation: 'My Location',
+    locationUnavailable: 'Location permission denied or unavailable. Search for a city instead.',
+    landSeaApproximate: 'Land/sea classification is approximate.',
     distanceLabel: 'Distance: 20,015 km (Earth Diameter)',
     yourLocation: 'Your Location',
     antipodeLocation: 'Exact Opposite Point (Antipode)',
@@ -58,7 +62,7 @@ export const translations: Record<Language, Translations> = {
     maxWave: 'Max Wave',
     wavePeriod: 'Wave Period',
     seabedDepth: 'Seabed Depth',
-    landNotice: 'Terrestrial Land Point (Solid ground, no ocean).',
+    landNotice: 'Likely land (approximate classification; marine data not queried).',
     calmCondition: 'Calm',
     weatherUnavailable: 'Weather telemetry currently unavailable.',
     marineLoading: 'Marine telemetry loading...',
@@ -66,7 +70,7 @@ export const translations: Record<Language, Translations> = {
     oceanZone: 'Middle of the Ocean / Remote Area',
     landZone: 'Terrestrial Land',
     antipodeSummary: (lat, lon, isLand) =>
-      `Antipode coordinates (${lat.toFixed(2)}°, ${lon.toFixed(2)}°) located in ${isLand ? 'Land' : 'Open Ocean'}.`,
+      `Antipode coordinates (${lat.toFixed(2)}°, ${lon.toFixed(2)}°) likely ${isLand ? 'on land' : 'at sea'}.`,
     commentary: {
       freezing: "It's freezing icy cold there! Bundle up in warm layers.",
       chilly: "It's pretty chilly over there! Be glad for a warm place.",
@@ -84,6 +88,8 @@ export const translations: Record<Language, Translations> = {
     drillingButton: 'Dünya Çekirdeği Deliniyor...',
     searchPlaceholder: 'Bir şehir arayın (örn. İstanbul, Tokyo, New York, Ankara)...',
     myLocation: 'Konumum',
+    locationUnavailable: 'Konum izni verilmedi veya konum alınamadı. Şehir aramayı deneyin.',
+    landSeaApproximate: 'Kara/deniz ayrımı yaklaşıktır.',
     distanceLabel: 'Mesafe: 20.015 km (Dünya Çapı)',
     yourLocation: 'Bulunduğunuz Konum',
     antipodeLocation: 'Tam Karşıt Noktanız (Antipot)',
@@ -96,7 +102,7 @@ export const translations: Record<Language, Translations> = {
     maxWave: 'Maks Dalga',
     wavePeriod: 'Dalga Periyodu',
     seabedDepth: 'Deniz Derinliği',
-    landNotice: 'Karasal Bölge (Açık deniz suyu bulunmuyor).',
+    landNotice: 'Olası kara bölgesi (yaklaşık sınıflandırma; deniz verisi sorgulanmadı).',
     calmCondition: 'Sakin',
     weatherUnavailable: 'Bu nokta için hava durumu verisi alınamadı.',
     marineLoading: 'Deniz verileri yükleniyor...',
@@ -104,7 +110,7 @@ export const translations: Record<Language, Translations> = {
     oceanZone: 'Okyanusun Ortası / Açık Deniz',
     landZone: 'Karasal Bölge',
     antipodeSummary: (lat, lon, isLand) =>
-      `Karşıt nokta (${lat.toFixed(2)}°, ${lon.toFixed(2)}°) ${isLand ? 'Karaya' : 'Açık Okyanusa'} denk gelmektedir.`,
+      `Karşıt nokta (${lat.toFixed(2)}°, ${lon.toFixed(2)}°) yaklaşık olarak ${isLand ? 'karada' : 'denizde'} görünüyor.`,
     commentary: {
       freezing: 'Orası buz gibi dondurucu! Sıcak bir yerde olduğunuza sevinin.',
       chilly: 'Hava oldukça serin! Sıkı giyinmekte fayda var.',
@@ -122,6 +128,8 @@ export const translations: Record<Language, Translations> = {
     drillingButton: 'Erdkern wird durchbohrt...',
     searchPlaceholder: 'Stadt suchen (z. B. Berlin, Tokio, Wien, Zürich)...',
     myLocation: 'Mein Standort',
+    locationUnavailable: 'Standortfreigabe verweigert oder nicht verfügbar. Bitte eine Stadt suchen.',
+    landSeaApproximate: 'Die Land/Meer-Einstufung ist ungefähr.',
     distanceLabel: 'Entfernung: 20.015 km (Erd-Durchmesser)',
     yourLocation: 'Ihr Standort',
     antipodeLocation: 'Exakter Gegenpunkt (Antipode)',
@@ -134,7 +142,7 @@ export const translations: Record<Language, Translations> = {
     maxWave: 'Max. Welle',
     wavePeriod: 'Wellenperiode',
     seabedDepth: 'Meeresbodentiefe',
-    landNotice: 'Festlandpunkt (Kein offenes Meerwasser).',
+    landNotice: 'Vermutlich Land (ungefähre Einstufung; keine Meeresdaten abgefragt).',
     calmCondition: 'Ruhig',
     weatherUnavailable: 'Wetterdaten derzeit nicht verfügbar.',
     marineLoading: 'Meeresdaten werden geladen...',
@@ -142,7 +150,7 @@ export const translations: Record<Language, Translations> = {
     oceanZone: 'Mitten im Ozean / Abgelegenes Gebiet',
     landZone: 'Festland',
     antipodeSummary: (lat, lon, isLand) =>
-      `Antipoden-Koordinaten (${lat.toFixed(2)}°, ${lon.toFixed(2)}°) liegen auf ${isLand ? 'dem Festland' : 'dem offenen Ozean'}.`,
+      `Antipoden-Koordinaten (${lat.toFixed(2)}°, ${lon.toFixed(2)}°) liegen vermutlich ${isLand ? 'an Land' : 'im Meer'}.`,
     commentary: {
       freezing: 'Dort ist es eiskalt! Ziehen Sie sich warm an.',
       chilly: 'Es ist ziemlich kühl dort drüben.',
@@ -160,6 +168,8 @@ export const translations: Record<Language, Translations> = {
     drillingButton: 'Perforando el Núcleo...',
     searchPlaceholder: 'Buscar ciudad (ej. Madrid, Tokio, Buenos Aires, México)...',
     myLocation: 'Mi Ubicación',
+    locationUnavailable: 'Permiso de ubicación denegado o no disponible. Busca una ciudad.',
+    landSeaApproximate: 'La clasificación tierra/mar es aproximada.',
     distanceLabel: 'Distancia: 20.015 km (Diámetro Terrestre)',
     yourLocation: 'Tu Ubicación',
     antipodeLocation: 'Punto Exactamente Opuesto (Antípoda)',
@@ -172,7 +182,7 @@ export const translations: Record<Language, Translations> = {
     maxWave: 'Ola Máx.',
     wavePeriod: 'Período de Ola',
     seabedDepth: 'Profundidad Marina',
-    landNotice: 'Punto Terrestre (Tierra firme, sin mar abierto).',
+    landNotice: 'Probablemente tierra (clasificación aproximada; no se consultaron datos marinos).',
     calmCondition: 'Calma',
     weatherUnavailable: 'Datos meteorológicos no disponibles.',
     marineLoading: 'Cargando datos marinos...',
@@ -180,7 +190,7 @@ export const translations: Record<Language, Translations> = {
     oceanZone: 'En Medio del Océano / Zona Remota',
     landZone: 'Tierra Firme',
     antipodeSummary: (lat, lon, isLand) =>
-      `Coordenadas de la antípoda (${lat.toFixed(2)}°, ${lon.toFixed(2)}°) ubicadas en ${isLand ? 'Tierra' : 'Océano Abierto'}.`,
+      `Coordenadas de la antípoda (${lat.toFixed(2)}°, ${lon.toFixed(2)}°) probablemente ${isLand ? 'en tierra' : 'en el mar'}.`,
     commentary: {
       freezing: '¡Hace un frío helado allí! Abrígate bien.',
       chilly: '¡Hace bastante frío por allí!',

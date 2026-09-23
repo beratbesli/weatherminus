@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Navigation, Loader2 } from 'lucide-react';
-import { searchCities, fetchAutoIpLocation } from '../../services/api';
+import { searchCities } from '../../services/api';
+import { getBrowserLocation } from '../../services/browserLocation';
 import { CitySearchResult } from '../../types';
 import { Language, translations } from '../../i18n/translations';
 
@@ -15,6 +16,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSelectLocation, isLoadin
   const [results, setResults] = useState<CitySearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [locationError, setLocationError] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const t = translations[lang];
@@ -54,14 +56,17 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSelectLocation, isLoadin
     onSelectLocation(city.lat, city.lon, fullName);
   };
 
-  const handleAutoIp = async () => {
+  const handleBrowserLocation = async () => {
     setIsSearching(true);
-    const loc = await fetchAutoIpLocation();
-    setIsSearching(false);
-    if (loc) {
-      const name = [loc.name, loc.country].filter(Boolean).join(', ');
-      setQuery(name);
-      onSelectLocation(loc.latitude, loc.longitude, name);
+    setLocationError(false);
+    try {
+      const loc = await getBrowserLocation();
+      setQuery(t.myLocation);
+      onSelectLocation(loc.latitude, loc.longitude, t.myLocation);
+    } catch {
+      setLocationError(true);
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -85,7 +90,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSelectLocation, isLoadin
         />
 
         <button
-          onClick={handleAutoIp}
+          onClick={handleBrowserLocation}
           title={t.myLocation}
           className="px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-semibold flex items-center gap-1.5 border border-cyan-500/20 transition-all active:scale-95"
         >
@@ -93,6 +98,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSelectLocation, isLoadin
           <span>{t.myLocation}</span>
         </button>
       </div>
+
+      {locationError && <p role="alert" className="mt-2 text-xs text-amber-300">{t.locationUnavailable}</p>}
 
       {isOpen && (
         <div className="absolute top-full mt-2 left-0 right-0 glass-panel rounded-2xl border border-white/10 overflow-hidden shadow-2xl z-40">

@@ -50,6 +50,9 @@ jobs:
     - name: Typecheck
       working-directory: frontend
       run: npm run typecheck
+    - name: Test browser location permission flow
+      working-directory: frontend
+      run: npm run test:location
     - name: Build
       working-directory: frontend
       run: npm run build
@@ -63,3 +66,20 @@ jobs:
       run: docker compose config --quiet
     - name: Build images
       run: docker compose build
+
+    - name: Verify Compose frontend API proxy and limit
+      run: |
+        docker compose up -d --wait
+        trap 'docker compose down -v' EXIT
+        curl --fail --silent --show-error http://localhost:3000/ | grep -q '<div id="root"'
+        curl --fail --silent --show-error 'http://localhost:3000/api/v1/antipode?lat=41.67&lon=26.56' |
+          jq -e '.antipode_latitude == -41.67 and .antipode_longitude == -153.44'
+        limited=0
+        for attempt in $(seq 1 30); do
+          code=$(curl --silent --output /dev/null --write-out '%{http_code}' 'http://localhost:3000/api/v1/antipode?lat=41.67&lon=26.56')
+          if [ "$code" = 429 ]; then
+            limited=1
+            break
+          fi
+        done
+        test "$limited" -eq 1

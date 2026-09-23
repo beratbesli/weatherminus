@@ -63,8 +63,8 @@ async def get_telemetry(
         anti_marine_task,
     )
 
-    origin_loc_name = origin_name or ("Terrestrial Zone" if origin_is_land else "Ocean Region")
-    anti_loc_name = "Terrestrial Land" if anti_is_land else "Middle of the Ocean"
+    origin_loc_name = origin_name or ("Likely Land" if origin_is_land else "Likely Sea")
+    anti_loc_name = "Likely Land" if anti_is_land else "Likely Sea"
 
     origin_desc = origin_weather.description if origin_weather else ""
     origin_temp = origin_weather.temperature if origin_weather else None
@@ -98,8 +98,8 @@ async def get_telemetry(
     )
 
     summary = (
-        f"Antipode coordinates ({anti_lat}, {anti_lon}) located in "
-        f"{'Land' if anti_is_land else 'Ocean'}."
+        f"Antipode coordinates ({anti_lat}, {anti_lon}) approximately classified as "
+        f"{'land' if anti_is_land else 'sea'} using coarse bounds."
     )
 
     return FullTelemetryResponse(

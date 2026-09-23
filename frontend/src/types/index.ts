@@ -5,6 +5,7 @@ export interface LocationInfo {
   latitude: number;
   longitude: number;
   is_land: boolean;
+  classification_accuracy: 'approximate_bounds';
 }
 
 export interface WeatherData {

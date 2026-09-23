@@ -10,8 +10,8 @@
 - **Earth Core Laser Tunnel:** 3D laser connecting origin coordinates directly through $(0,0,0)$ to the antipode, with a cinematic "Drill Through Earth" camera animation.
 - **Oceanography & Marine Telemetry:** For antipodes landing in open oceans (71%+ of Earth), live telemetry displays wave heights, wave periods, seabed depth (bathymetry), and oceanic surface conditions.
 - **Side-by-Side Telemetry Comparison:** Compare origin climate against the exact opposite side of the world.
-- **High-Performance FastAPI Backend:** Asynchronous microservice with spatial grid indexing, multi-tier caching (reducing external API calls by 90%+), security headers, and rate-limiting.
-- **Geocoding & IP Auto-Detection:** Search by city name or auto-detect current location via IP.
+- **High-Performance FastAPI Backend:** Asynchronous microservice with spatial grid indexing, multi-tier caching (reducing external API calls by 90%+), and security headers. The Compose frontend limits API requests to 60 per minute per client, with a burst of 10.
+- **Geocoding & Browser Location:** Search by city name or grant browser location permission. The CLI's separate `--auto-ip` option still locates the machine running the CLI.
 - **Full-Featured Python CLI:** Includes `weatherminus.py` for terminal usage.
 - **Docker Ready:** One-command startup via Docker Compose.
 
@@ -61,7 +61,9 @@ cp .env.example .env
 docker-compose up --build
 ```
 - **Web App:** `http://localhost:3000`
-- **API Documentation:** `http://localhost:8000/api/v1/docs`
+- **API Documentation:** `http://localhost:3000/api/v1/docs` (proxied to the backend)
+
+The backend is available only to the frontend container in the Compose network. The browser sends its own coordinates after permission is granted (requires HTTPS or localhost). Land/sea classification and displayed ocean depth are rough estimates, especially near coasts and islands.
 
 ---
 
@@ -113,6 +115,7 @@ Validate and build the frontend with the checked-in lockfile:
 cd frontend
 npm ci
 npm run typecheck
+npm run test:location
 npm run build
 ```
 

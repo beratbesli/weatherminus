@@ -1,4 +1,4 @@
-import { FullTelemetryResponse, CitySearchResult, LocationInfo } from '../types';
+import { FullTelemetryResponse, CitySearchResult } from '../types';
 
 const API_BASE = '/api/v1';
 
@@ -32,14 +32,4 @@ export async function searchCities(query: string): Promise<CitySearchResult[]> {
   const response = await fetch(`${API_BASE}/geocode/search?q=${encodeURIComponent(query)}`);
   if (!response.ok) return [];
   return response.json();
-}
-
-export async function fetchAutoIpLocation(): Promise<LocationInfo | null> {
-  try {
-    const response = await fetch(`${API_BASE}/geocode/auto-ip`);
-    if (!response.ok) return null;
-    return response.json();
-  } catch {
-    return null;
-  }
 }
