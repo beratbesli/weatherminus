@@ -14,7 +14,6 @@ class Settings(BaseSettings):
     OPEN_METEO_MARINE_URL: str = "https://marine-api.open-meteo.com/v1/marine"
     IP_GEO_URL: str = "https://ipapi.co/json/"
     CACHE_TTL_SECONDS: int = 600
-    RATE_LIMIT_PER_MINUTE: int = 60
     CORS_ORIGINS: list[str] = [
         "http://localhost:3000",
         "http://localhost:5173",

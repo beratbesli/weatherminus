@@ -3,8 +3,8 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     environment:
       - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
     restart: unless-stopped
@@ -21,5 +21,6 @@ services:
     ports:
       - "3000:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped

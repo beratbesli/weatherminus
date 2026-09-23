@@ -74,6 +74,7 @@ def test_antipode_endpoint():
     assert data["antipode_latitude"] == -41.67
     assert data["antipode_longitude"] == -153.44
     assert data["is_land"] is False
+    assert data["classification_accuracy"] == "approximate_bounds"
 
 
 def test_antipode_invalid_coords():
@@ -115,3 +116,5 @@ def test_telemetry_endpoint(mock_marine, mock_weather):
     assert data["origin"]["location"]["name"] == "Edirne"
     assert data["antipode"]["location"]["latitude"] == -41.67
     assert data["antipode"]["location"]["longitude"] == -153.44
+    assert data["antipode"]["location"]["classification_accuracy"] == "approximate_bounds"
+    assert "approximately classified" in data["status_summary"]

@@ -25,6 +25,7 @@ async def get_antipode_data(
         "antipode_latitude": anti_lat,
         "antipode_longitude": anti_lon,
         "is_land": anti_is_land,
+        "classification_accuracy": "approximate_bounds",
         "ocean_depth_meters": depth,
         "map_url": f"https://www.google.com/maps?q={anti_lat},{anti_lon}",
     }

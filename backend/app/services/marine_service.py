@@ -24,7 +24,7 @@ class MarineService:
             return MarineData(
                 available=False,
                 ocean_depth_m=0,
-                condition_summary="Terrestrial land point (no open sea).",
+                condition_summary="Likely land based on approximate bounds; marine data not queried.",
             )
 
         cached = await geo_cache.get_spatial("marine", latitude, longitude)
@@ -82,7 +82,7 @@ class MarineService:
         return MarineData(
             available=True,
             ocean_depth_m=depth,
-            condition_summary="Open ocean waters (live telemetry unavailable).",
+            condition_summary="Likely sea based on approximate bounds (live telemetry unavailable).",
         )
 
     async def close(self) -> None:
